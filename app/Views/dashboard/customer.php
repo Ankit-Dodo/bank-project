@@ -54,13 +54,13 @@ Swal.fire({
 
         <p class="welcome-text">
             Welcome,
-            <strong><?php echo htmlspecialchars($user['username'] ?? 'Customer'); ?></strong>
+            <strong><?= htmlspecialchars($user['username'] ?? 'Customer'); ?></strong>
         </p>
 
         <?php if (!empty($user['last_login'])): ?>
             <p class="last-login">
                 Last login:
-                <?php echo htmlspecialchars($user['last_login']); ?>
+                <?= htmlspecialchars($user['last_login']); ?>
             </p>
         <?php endif; ?>
     </div>
@@ -69,13 +69,13 @@ Swal.fire({
     <div class="stats-wrapper">
         <div class="stat-box">
             <div class="stat-label">Your Accounts</div>
-            <div class="stat-value"><?php echo $totalAccounts; ?></div>
+            <div class="stat-value"><?= $totalAccounts; ?></div>
         </div>
 
         <div class="stat-box">
             <div class="stat-label">Total Balance</div>
             <div class="stat-value">
-                Rs.<?php echo number_format($totalBalance, 2); ?>
+                Rs.<?= number_format($totalBalance, 2); ?>
             </div>
         </div>
     </div>
@@ -103,15 +103,15 @@ Swal.fire({
                 <tbody>
                 <?php foreach ($accounts as $acc): ?>
                 <tr>
-                    <td data-label="Account No"><?php echo htmlspecialchars($acc['account_number']); ?></td>
-                    <td data-label="Type"><?php echo htmlspecialchars($acc['account_type']); ?></td>
-                    <td data-label="IFSC"><?php echo htmlspecialchars($acc['ifsc_code']); ?></td>
-                    <td data-label="Date"><?php echo htmlspecialchars($acc['account_date']); ?></td>
-                    <td data-label="Balance">₹<?php echo number_format((float)$acc['balance'], 2); ?></td>
-                    <td data-label="Min Balance">₹<?php echo number_format((float)($acc['min_balance'] ?? 0), 2); ?></td>
+                    <td data-label="Account No"><?= htmlspecialchars($acc['account_number']); ?></td>
+                    <td data-label="Type"><?= htmlspecialchars($acc['account_type']); ?></td>
+                    <td data-label="IFSC"><?= htmlspecialchars($acc['ifsc_code']); ?></td>
+                    <td data-label="Date"><?= htmlspecialchars($acc['account_date']); ?></td>
+                    <td data-label="Balance">₹<?= number_format((float)$acc['balance'], 2); ?></td>
+                    <td data-label="Min Balance">₹<?= number_format((float)($acc['min_balance'] ?? 0), 2); ?></td>
                     <td data-label="Status">
-                        <span class="status-badge status-<?php echo strtolower($acc['status']); ?>">
-                            <?php echo htmlspecialchars($acc['status']); ?>
+                        <span class="status-badge status-<?= strtolower($acc['status']); ?>">
+                            <?= htmlspecialchars($acc['status']); ?>
                         </span>
                     </td>
                 </tr>

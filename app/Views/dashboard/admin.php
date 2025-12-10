@@ -273,7 +273,7 @@ function showAdminTab(tab) {
 function confirmDelete(accountId) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will attempt to delete the account.",
+        text: "This will Permanently delete the account.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
