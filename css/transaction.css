@@ -1,0 +1,262 @@
+.page-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: #003b95;
+}
+
+.transactions-container {
+    max-width: 1100px;
+    margin: 20px auto 40px;
+    background: #ffffff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* SEARCH ROW (back + search) */
+.search-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Go Back button */
+.back-btn {
+    padding: 6px 12px;
+    background: #1e3799;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 13px;
+    text-decoration: none;
+}
+.back-btn:hover {
+    background: #2749c9;
+}
+
+/* SEARCH BAR */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-bar input[type="text"] {
+    width: 220px;
+    padding: 7px 9px;
+    border-radius: 4px;
+    border: 1px solid #cfd6e3;
+    font-size: 13px;
+}
+
+.search-bar button[type="submit"] {
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: none;
+    background: #1e3799;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.search-bar button[type="submit"]:hover {
+    background: #2749c9;
+}
+
+/* FILTER ICON BUTTON */
+.filter-trigger {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+.filter-trigger img {
+    width: 20px;
+    height: 20px;
+}
+
+/* FILTER POPUP */
+.filter-popup {
+    position: absolute;
+    right: 20px;
+    top: 130px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #dcdde1;
+    padding: 10px 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    width: 260px;
+    display: none;
+    z-index: 100;
+}
+
+.filter-popup h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #2f3542;
+}
+
+.filter-section {
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.filter-section strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #1e3799;
+}
+
+.filter-section label {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.filter-sub {
+    margin-left: 18px;
+    margin-top: 4px;
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.btn-apply,
+.btn-clear {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-apply {
+    background: #1e3799;
+    color: #ffffff;
+}
+
+.btn-clear {
+    background: #f1f2f6;
+    color: #2f3542;
+}
+
+/* EXPORT CSV BUTTON */
+.export-btn {
+    padding: 7px 12px;
+    border-radius: 4px;
+    border: 1px solid #108645;
+    background: #ffffff;
+    color: #108645;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.export-btn:hover {
+    background: #e8f9ef;
+}
+
+/* TABLE */
+.transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.transactions-table th,
+.transactions-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.transactions-table th {
+    background: #f4f6fb;
+    font-weight: 600;
+    color: #2f3542;
+}
+
+.transactions-table tbody tr:hover {
+    background: #f7faff;
+}
+
+/* NO DATA */
+.no-data {
+    text-align: center;
+    padding: 18px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* PAGINATION */
+.pagination {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.page-link {
+    padding: 5px 10px;
+    background: #ffffff;
+    border: 1px solid #dcdde1;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #2f3542;
+    text-decoration: none;
+}
+
+.page-link:hover {
+    background: #e9f1ff;
+}
+
+.active-page {
+    background: #1e3799 !important;
+    color: #ffffff !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .transactions-container {
+        padding: 15px;
+    }
+
+    .search-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .search-bar {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .search-bar input[type="text"] {
+        flex: 1;
+    }
+
+    .filter-popup {
+        right: 10px;
+        left: 10px;
+    }
+
+    .transactions-table {
+        font-size: 12px;
+    }
+}
