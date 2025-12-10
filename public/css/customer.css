@@ -1,0 +1,190 @@
+/* ===========================
+   CUSTOMER DASHBOARD LAYOUT
+   =========================== */
+
+.page-container {
+    max-width: 1300px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* ===========================
+   DASHBOARD HEADER
+   =========================== */
+
+.dashboard-header h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #1e3799;
+}
+
+.welcome-text {
+    margin: 5px 0 0;
+    font-size: 15px;
+    color: #2f3542;
+}
+
+.role-pill {
+    background: #e8f0ff;
+    color: #1e3799;
+    padding: 3px 8px;
+    margin-left: 8px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.last-login {
+    font-size: 12px;
+    color: #666;
+    margin-top: 3px;
+}
+
+/* CARD WRAPPER */
+.section-card {
+    background: #ffffff;
+    padding: 20px 22px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    margin-bottom: 25px;
+}
+
+
+
+/* ===========================
+   CUSTOMER STATS ROW
+   =========================== */
+
+.stats-wrapper {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.stat-box {
+    flex: 1;
+    min-width: 230px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid #e4e7f0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.stat-value {
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e3799;
+}
+
+
+
+/* ===========================
+   ACCOUNTS TABLE
+   =========================== */
+
+.ui-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.ui-table thead th {
+    background: #f5f7ff;
+    padding: 12px 10px;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    color: #1e3799;
+    text-align: left;
+}
+
+.ui-table tbody td {
+    padding: 11px 10px;
+    border-bottom: 1px solid #f1f1f1;
+    color: #2f3542;
+}
+
+.ui-table tbody tr:hover {
+    background: #f7faff;
+}
+
+
+
+/* ===========================
+   STATUS BADGES
+   =========================== */
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #e7f9ef;
+    color: #1a7e3a;
+}
+
+.status-pending {
+    background: #fff6d6;
+    color: #b8860b;
+}
+
+.status-other {
+    background: #ffe3e3;
+    color: #c0392b;
+}
+
+
+
+/* ===========================
+   MOBILE RESPONSIVE
+   =========================== */
+
+@media (max-width: 768px) {
+    .stats-wrapper {
+        flex-direction: column;
+    }
+
+    .stat-box {
+        width: 100%;
+    }
+
+    .ui-table {
+        font-size: 13px;
+    }
+
+    .ui-table thead {
+        display: none;
+    }
+
+    .ui-table tbody tr {
+        display: block;
+        margin-bottom: 12px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        padding: 12px;
+    }
+
+    .ui-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: none;
+    }
+
+    .ui-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #1e3799;
+    }
+}

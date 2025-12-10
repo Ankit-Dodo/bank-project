@@ -1,0 +1,120 @@
+/* CARD WRAPPER FOR FORMS */
+.form-card {
+    max-width: 450px;
+    margin: 30px auto 45px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 22px 24px 26px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+/* TITLES */
+.form-create-title,
+.form-details-title {
+    margin: 0 0 16px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e3799;
+    text-align: center;
+}
+
+/* LABELS */
+.form-card label {
+    display: block;
+    margin: 8px 0 4px;
+    font-size: 14px;
+    color: #2f3542;
+}
+
+/* INPUTS + SELECTS + TEXTAREAS */
+.form-card input[type="text"],
+.form-card input[type="number"],
+.form-card input[type="date"],
+.form-card select,
+.form-card textarea {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 6px;
+    border: 1px solid #cfd6e3;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    background: #ffffff;
+}
+
+.form-card textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-card input:focus,
+.form-card select:focus,
+.form-card textarea:focus {
+    border-color: #1e3799;
+    box-shadow: 0 0 4px rgba(30, 55, 153, 0.25);
+}
+
+/* SUBMIT BUTTON */
+.form-submit,
+.form-card button[type="submit"] {
+    width: 100%;
+    margin-top: 14px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    border: none;
+    background: #1e3799;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.form-submit:hover,
+.form-card button[type="submit"]:hover {
+    background: #2749c9;
+}
+
+/* NOTE TEXT */
+.form-note {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+}
+
+/* MESSAGES */
+.form-error,
+.form-success {
+    padding: 9px 11px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.form-error {
+    background: #fdecea;
+    color: #c0392b;
+    border-left: 4px solid #e74c3c;
+}
+
+.form-success {
+    background: #e8f9ef;
+    color: #1f8b4c;
+    border-left: 4px solid #2ecc71;
+}
+
+/* SMALL HELP TEXT (OPTIONAL) */
+.form-help {
+    font-size: 12px;
+    color: #888;
+    margin-top: 3px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .form-card {
+        margin: 20px 12px 30px;
+        padding: 18px 16px 20px;
+    }
+}

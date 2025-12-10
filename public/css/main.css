@@ -1,0 +1,192 @@
+/* Common layout for deposit, withdraw and transfer */
+.page-container1 {
+    margin: 30px auto 40px;
+    padding: 0 20px;
+    max-width: 500px;
+}
+
+.deposit-header h3,
+.withdraw-header h3,
+.transfer-header h3 {
+    margin: 0;
+    font-size: 24px;
+    text-align: center;
+}
+
+.deposit-header p,
+.withdraw-header p,
+.transfer-header p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #2f3542;
+}
+
+/* header colors */
+.deposit-header h3 { color: #1e3799; }
+.withdraw-header h3 { color: #c0392b; }
+.transfer-header h3 { color: #108645; }
+
+/* SHARED ALERTS */
+.deposit-success,
+.deposit-error,
+.withdraw-success,
+.withdraw-error,
+.transfer-success,
+.transfer-error {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin: 0 0 18px 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* SUCCESS */
+.deposit-success,
+.withdraw-success,
+.transfer-success {
+    background: #e8f9ef;
+    color: #1f8b4c;
+    border-left: 4px solid #2ecc71;
+}
+
+/* ERROR */
+.deposit-error,
+.withdraw-error,
+.transfer-error {
+    background: #fdecea;
+    color: #c0392b;
+    border-left: 4px solid #e74c3c;
+}
+
+/* SHARED FORM LAYOUT */
+.deposit-form,
+.withdraw-form,
+.transfer-form {
+    margin-top: 10px;
+}
+
+.deposit-row,
+.withdraw-row,
+.transfer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.deposit-col,
+.withdraw-col,
+.transfer-col {
+    flex: 1;
+    min-width: 230px;
+}
+
+.deposit-col label,
+.withdraw-col label,
+.transfer-col label {
+    display: block;
+    font-size: 14px;
+    color: #2f3542;
+    margin-bottom: 5px;
+}
+
+/* SHARED INPUT STYLES */
+.deposit-input,
+.withdraw-input,
+.transfer-input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid #cfd6e3;
+    border-radius: 6px;
+    outline: none;
+    transition: 0.2s;
+    background: #ffffff;
+}
+
+.deposit-input:focus,
+.withdraw-input:focus,
+.transfer-input:focus {
+    border-color: #1e3799;
+    box-shadow: 0 0 4px rgba(30, 55, 153, 0.2);
+}
+
+/* BUTTON AREAS */
+.deposit-actions,
+.withdraw-actions,
+.transfer-actions {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* PRIMARY BUTTONS */
+.deposit-btn,
+.withdraw-btn,
+.transfer-btn {
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    color: #ffffff;
+}
+
+/* colors */
+.deposit-btn { background: #1e3799; }
+.deposit-btn:hover { background: #2749c9; }
+
+.withdraw-btn { background: #c0392b; }
+.withdraw-btn:hover { background: #e74c3c; }
+
+.transfer-btn { background: #108645; }
+.transfer-btn:hover { background: #0c6b36; }
+
+/* secondary (for deposit Load Accounts if you still use it) */
+.secondary-btn {
+    background: #ffffff;
+    color: #1e3799;
+    border: 1px solid #1e3799;
+}
+.secondary-btn:hover {
+    background: #f1f4ff;
+}
+
+/* disabled */
+.deposit-btn:disabled,
+.withdraw-btn:disabled,
+.transfer-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* updated account blocks */
+.updated-details {
+    margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .deposit-row,
+    .withdraw-row,
+    .transfer-row {
+        flex-direction: column;
+    }
+
+    .deposit-actions,
+    .withdraw-actions,
+    .transfer-actions {
+        flex-direction: column;
+    }
+
+    .deposit-btn,
+    .withdraw-btn,
+    .transfer-btn,
+    .secondary-btn {
+        width: 100%;
+    }
+}
