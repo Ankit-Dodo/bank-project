@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="page-container1">
 
@@ -7,13 +8,44 @@
         <h3>Transfer-Money</h3>
     </div>
 
-    <!-- MESSAGES -->
-    <?php if (!empty($errorMessage)): ?>
-        <div class="transfer-error"><?php echo htmlspecialchars($errorMessage); ?></div>
-    <?php endif; ?>
+    <!-- SERVER MESSAGES -> SweetAlert -->
+    <?php if (!empty($errorMessage) || !empty($successMessage)): ?>
+        <script>
+        (function(){
+          function show(msgType, msg) {
+            if (window.Swal) {
+              Swal.fire({
+                icon: msgType === 'error' ? 'error' : 'success',
+                title: msgType === 'error' ? 'Error' : 'Success',
+                text: msg,
+                confirmButtonText: 'OK'
+              });
+            } else {
+              var s = document.createElement('script');
+              s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+              s.onload = function() {
+                Swal.fire({
+                  icon: msgType === 'error' ? 'error' : 'success',
+                  title: msgType === 'error' ? 'Error' : 'Success',
+                  text: msg,
+                  confirmButtonText: 'OK'
+                });
+              };
+              document.head.appendChild(s);
+            }
+          }
 
-    <?php if (!empty($successMessage)): ?>
-        <div class="transfer-success"><?php echo htmlspecialchars($successMessage); ?></div>
+          document.addEventListener('DOMContentLoaded', function() {
+            <?php if (!empty($errorMessage)): ?>
+              show('error', <?php echo json_encode($errorMessage); ?>);
+            <?php endif; ?>
+
+            <?php if (!empty($successMessage)): ?>
+              show('success', <?php echo json_encode($successMessage); ?>);
+            <?php endif; ?>
+          });
+        })();
+        </script>
     <?php endif; ?>
 
     <!-- FORM CARD -->
@@ -116,15 +148,63 @@
 </div>
 
 
-<!-- AUTO-LOAD ACCOUNTS ON USER CHANGE (ADMIN ONLY) -->
+<!-- AUTO-LOAD ACCOUNTS ON USER CHANGE (ADMIN ONLY) + Confirmation -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const userSelect = document.getElementById("user_id");
+    const form = document.querySelector(".transfer-form");
+    if (!form) return;
 
+    const amountInput = form.querySelector("input[name='amount']");
+    const submitBtn = form.querySelector("button[type='submit'][name='action'][value='transfer']");
+
+    // When admin changes user, submit form and skip confirmation
     if (userSelect) {
         userSelect.addEventListener("change", function () {
-            document.querySelector(".transfer-form").submit();
+            form.dataset.skipConfirm = "true";
+            form.submit();
         });
     }
+
+    // Confirmation handler
+    function onSubmit(e) {
+        // If triggered by userSelect change, allow normal submit
+        if (form.dataset.skipConfirm === "true") {
+            delete form.dataset.skipConfirm;
+            return;
+        }
+
+        e.preventDefault();
+
+        // Amount exactly as typed
+        const amount = amountInput ? amountInput.value : '';
+
+        Swal.fire({
+            title: "Confirm Transfer",
+            text: "Are you sure you want to transfer ₹" + amount + "?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Transfer",
+            cancelButtonText: "No, Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // remove handler to avoid re-trigger, then click real submit button
+                form.removeEventListener('submit', onSubmit);
+                if (submitBtn) {
+                    submitBtn.click();
+                } else {
+                    form.submit();
+                }
+            } else {
+                Swal.fire({
+                    icon: "info",
+                    title: "Cancelled",
+                    text: "Transfer cancelled."
+                });
+            }
+        });
+    }
+
+    form.addEventListener("submit", onSubmit);
 });
 </script>

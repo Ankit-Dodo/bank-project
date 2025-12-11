@@ -1,16 +1,48 @@
 <link rel="stylesheet" href="/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="page-container1">
 
     <div class="section-card withdraw-header">
         <h3>Withdraw-Money</h3>
     </div>
 
-    <?php if (!empty($errorMessage)): ?>
-        <div class="withdraw-error"><?php echo $errorMessage; ?></div>
-    <?php endif; ?>
+    <?php if (!empty($errorMessage) || !empty($successMessage)): ?>
+        <script>
+        (function(){
+          function show(msgType, msg) {
+            if (window.Swal) {
+              Swal.fire({
+                icon: msgType === 'error' ? 'error' : 'success',
+                title: msgType === 'error' ? 'Transaction Failed' : 'Success',
+                text: msg,
+                confirmButtonText: 'OK'
+              });
+            } else {
+              var s = document.createElement('script');
+              s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+              s.onload = function() {
+                Swal.fire({
+                  icon: msgType === 'error' ? 'error' : 'success',
+                  title: msgType === 'error' ? 'Transaction Failed' : 'Success',
+                  text: msg,
+                  confirmButtonText: 'OK'
+                });
+              };
+              document.head.appendChild(s);
+            }
+          }
 
-    <?php if (!empty($successMessage)): ?>
-        <div class="withdraw-success"><?php echo $successMessage; ?></div>
+          document.addEventListener('DOMContentLoaded', function() {
+            <?php if (!empty($errorMessage)): ?>
+              show('error', <?php echo json_encode($errorMessage); ?>);
+            <?php endif; ?>
+
+            <?php if (!empty($successMessage)): ?>
+              show('success', <?php echo json_encode($successMessage); ?>);
+            <?php endif; ?>
+          });
+        })();
+        </script>
     <?php endif; ?>
 
     <div class="section-card">
@@ -75,12 +107,66 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const userSelect = document.getElementById("user_id");
-    if (userSelect) {
-        userSelect.addEventListener("change", function() {
-            document.querySelector(".withdraw-form").submit();
-        });
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector(".withdraw-form");
+  if (!form) return;
+  const amountInput = form.querySelector("input[name='amount']");
+  const userSelect = document.getElementById("user_id");
+  // find the actual submit button so we can click it programmatically later
+  const submitBtn = form.querySelector("button[type='submit'][name='action']");
+
+  // If admin changes the selected user, submit the form immediately WITHOUT confirmation.
+  if (userSelect) {
+    userSelect.addEventListener("change", function () {
+      // set a flag so the submit handler can allow this submission through
+      form.dataset.skipConfirm = "true";
+      form.submit();
+    });
+  }
+
+  // Confirmation handler
+  function onSubmit(e) {
+    // If this submit was triggered by the userSelect change, allow it.
+    if (form.dataset.skipConfirm === "true") {
+      delete form.dataset.skipConfirm;
+      return; // allow normal submit
     }
+
+    // Prevent default and show confirmation
+    e.preventDefault();
+
+    // Take the amount exactly as the user entered (no formatting)
+    let amount = amountInput ? amountInput.value : '';
+
+    Swal.fire({
+      title: "Confirm Withdrawal",
+      text: "Are you sure you want to withdraw ₹" + amount + "?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Withdraw",
+      cancelButtonText: "No, Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // remove this handler so the next click won't re-trigger the confirmation
+        form.removeEventListener('submit', onSubmit);
+
+        // If we have a real submit button, click it so its name/value are included in POST.
+        if (submitBtn) {
+          submitBtn.click();
+        } else {
+          // fallback: native submit (may not include button name/value)
+          form.submit();
+        }
+      } else {
+        Swal.fire({
+          icon: "info",
+          title: "Cancelled",
+          text: "Withdrawal cancelled."
+        });
+      }
+    });
+  }
+
+  form.addEventListener("submit", onSubmit);
 });
 </script>

@@ -25,13 +25,6 @@ class AccountController extends Controller
 
         $accountModel = $this->model("Account");
 
-        // FIRST-TIME FLOW: if no account → go to customer details first
-        // $hasAccount = $accountModel->userHasAnyAccount($userId);
-
-        // if (!$hasAccount) {
-        //     header("Location: index.php?url=customer/details&next=account/create");
-        //     exit;
-        // }
 
         $successMessage = "";
         $errorMessage   = "";

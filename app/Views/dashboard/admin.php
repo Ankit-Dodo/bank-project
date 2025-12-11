@@ -74,8 +74,7 @@ Swal.fire({
     <!-- TITLE + EDIT USER BUTTON -->
     <div class="admin-top-row">
         <h4 class="section-title">Manage Accounts / Users</h4>
-        <!-- change href when you create edit users page -->
-        <a href="#" class="btn-secondary">Edit User Details</a>
+        <a href="index.php?url=admin/editUser" class="btn-secondary">Edit User Details</a>
     </div>
 
     <!-- TABS -->
@@ -150,7 +149,6 @@ Swal.fire({
     <!-- ALL ACCOUNTS TAB -->
     <div id="admin-tab-all" class="section-card">
 
-        <!-- top bar with search on right -->
         <div class="admin-table-top">
             <div></div>
             <form method="get" class="search-bar">
@@ -197,19 +195,28 @@ Swal.fire({
                     <td><?php echo htmlspecialchars($row['ifsc_code']); ?></td>
                     <td><?php echo htmlspecialchars($row['account_date']); ?></td>
                     <td><?php echo number_format((float)$row['balance'], 2); ?></td>
+
                     <td>
-                        <?php
-                            if (strtolower($row['user_status']) === 'inactive') {
-                                $displayStatus = 'Inactive';
-                            } else {
-                                $displayStatus = $row['account_status'];
-                            }
-                            $statusClass = strtolower($displayStatus);
-                        ?>
-                        <span class="status <?php echo $statusClass; ?>">
-                            <?php echo htmlspecialchars($displayStatus); ?>
-                        </span>
+                    <?php
+                        $userStatus    = strtolower(trim($row['user_status'] ?? ''));
+                        $accountStatus = strtolower(trim($row['account_status'] ?? ''));
+
+                        if ($userStatus === 'hold') {
+                            // If user is on HOLD → always show HOLD
+                            $displayStatus = 'Hold';
+                        } else {
+                            // Otherwise show the actual account status
+                            // (Active / Pending / Declined etc.)
+                            $displayStatus = ucfirst($accountStatus);
+                        }
+                    
+                        $statusClass = strtolower($displayStatus);
+                    ?>
+                    <span class="status <?= $statusClass ?>">
+                        <?= $displayStatus ?>
+                    </span>
                     </td>
+                    
                     <td>
                         <a class="btn-delete"
                            href="javascript:void(0);"
@@ -231,12 +238,10 @@ Swal.fire({
                     'url'    => 'admin/index',
                     'search' => $search,
                 ];
-            
                 require __DIR__ . '/../partials/pagination.php';
             ?>
         <?php endif; ?>
 
-        <!-- GO BACK BUTTON WHEN SEARCH ACTIVE -->
         <?php if ($search !== ""): ?>
             <div class="back-box">
                 <a href="index.php?url=admin/index" class="back-btn">Go Back</a>
@@ -273,7 +278,7 @@ function showAdminTab(tab) {
 function confirmDelete(accountId) {
     Swal.fire({
         title: "Are you sure?",
-        text: "This will Permanently delete the account.",
+        text: "This will permanently delete the account.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",

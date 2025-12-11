@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="page-container1">
 
@@ -6,12 +7,43 @@
         <h3>Deposit-Money</h3>
     </div>
 
-    <?php if (!empty($errorMessage)): ?>
-        <div class="deposit-error"><?php echo $errorMessage; ?></div>
-    <?php endif; ?>
+    <?php if (!empty($errorMessage) || !empty($successMessage)): ?>
+        <script>
+        (function(){
+          function show(msgType, msg) {
+            if (window.Swal) {
+              Swal.fire({
+                icon: msgType === 'error' ? 'error' : 'success',
+                title: msgType === 'error' ? 'Error' : 'Success',
+                text: msg,
+                confirmButtonText: 'OK'
+              });
+            } else {
+              var s = document.createElement('script');
+              s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+              s.onload = function() {
+                Swal.fire({
+                  icon: msgType === 'error' ? 'error' : 'success',
+                  title: msgType === 'error' ? 'Error' : 'Success',
+                  text: msg,
+                  confirmButtonText: 'OK'
+                });
+              };
+              document.head.appendChild(s);
+            }
+          }
 
-    <?php if (!empty($successMessage)): ?>
-        <div class="deposit-success"><?php echo $successMessage; ?></div>
+          document.addEventListener('DOMContentLoaded', function() {
+            <?php if (!empty($errorMessage)): ?>
+              show('error', <?php echo json_encode($errorMessage); ?>);
+            <?php endif; ?>
+
+            <?php if (!empty($successMessage)): ?>
+              show('success', <?php echo json_encode($successMessage); ?>);
+            <?php endif; ?>
+          });
+        })();
+        </script>
     <?php endif; ?>
 
     <div class="section-card">
@@ -79,11 +111,58 @@
 document.addEventListener("DOMContentLoaded", function() {
     const userSelect = document.getElementById("user_id");
     const form = document.querySelector(".deposit-form");
+    if (!form) return;
 
-    userSelect.addEventListener("change", function () {
-        form.submit(); // auto-load accounts
-    });
+    const amountInput = form.querySelector("input[name='amount']");
+    // find the actual submit button so its name/value are included when clicked
+    const submitBtn = form.querySelector("button[type='submit'][name='action']");
+
+    // If userSelect exists, submit form on change but skip confirmation
+    if (userSelect) {
+        userSelect.addEventListener("change", function () {
+            form.dataset.skipConfirm = "true";
+            form.submit();
+        });
+    }
+
+    function onSubmit(e) {
+        // If this submit was triggered by userSelect change, allow it
+        if (form.dataset.skipConfirm === "true") {
+            delete form.dataset.skipConfirm;
+            return;
+        }
+
+        // Prevent and show confirmation
+        e.preventDefault();
+
+        const amount = amountInput ? amountInput.value : '';
+
+        Swal.fire({
+            title: "Confirm Deposit",
+            text: "Are you sure you want to deposit ₹" + amount + "?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Deposit",
+            cancelButtonText: "No, Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // remove handler to avoid loop, then click real submit button so name/value are sent
+                form.removeEventListener('submit', onSubmit);
+                if (submitBtn) {
+                    submitBtn.click();
+                } else {
+                    form.submit();
+                }
+            } else {
+                Swal.fire({
+                    icon: "info",
+                    title: "Cancelled",
+                    text: "Deposit cancelled."
+                });
+            }
+        });
+    }
+
+    form.addEventListener("submit", onSubmit);
 });
 </script>
-
-

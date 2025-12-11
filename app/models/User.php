@@ -45,6 +45,25 @@ class User extends Model
         return ($result && mysqli_num_rows($result) > 0);
     }
 
+    /**
+     * Check if a username already exists
+     * @param string $username
+     * @return bool
+     */
+    public function usernameExists($username)
+    {
+        $username = trim($username);
+        if ($username === '') {
+            return false;
+        }
+
+        $usernameEsc = mysqli_real_escape_string($this->db, $username);
+        $sql = "SELECT id FROM users WHERE username = '$usernameEsc' LIMIT 1";
+        $res = mysqli_query($this->db, $sql);
+
+        return ($res && mysqli_num_rows($res) > 0);
+    }
+
     public function createUser($username, $email, $password)
     {
         $usernameEsc = mysqli_real_escape_string($this->db, $username);
@@ -78,6 +97,7 @@ class User extends Model
             die("Update last login failed: " . mysqli_error($this->db));
         }
     }
+
     public function getAllNonAdminUsers()
     {
         $sql = "

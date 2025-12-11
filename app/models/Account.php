@@ -25,6 +25,77 @@ class Account extends Model
 
         return $count > 0;
     }
+
+    /**
+     * REQUIRE that an account is Active.
+     * If not active, set session error and return false.
+     * Returns account row if active, otherwise false.
+     */
+    public function requireActive($accountId)
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $accountId = (int)$accountId;
+        $acc = $this->findById($accountId);
+
+        if (!$acc) {
+            $_SESSION['error'] = "Account not found.";
+            return false;
+        }
+
+        // DB stores statuses like 'Active', 'Pending', 'Declined', 'Hold' (case-sensitive here)
+        if (!isset($acc['status']) || $acc['status'] !== 'Active') {
+            $status = isset($acc['status']) ? $acc['status'] : 'unknown';
+            $_SESSION['error'] = "Account #{$acc['account_number']} is not active (status: {$status}). Please contact admin.";
+            return false;
+        }
+
+        return $acc;
+    }
+
+    /**
+     * REQUIRE that two accounts are active (sender and receiver).
+     * $toAccountIdentifier may be an id (int) or an account_number string.
+     * If failure, sets session error and returns false.
+     * Returns array ['from' => ..., 'to' => ...] on success.
+     */
+    public function requireActiveBoth($fromAccountId, $toAccountIdentifier)
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $fromAccountId = (int)$fromAccountId;
+        $from = $this->findById($fromAccountId);
+        if (!$from) {
+            $_SESSION['error'] = "Sender account not found.";
+            return false;
+        }
+        if (!isset($from['status']) || $from['status'] !== 'Active') {
+            $fromStatus = isset($from['status']) ? $from['status'] : 'unknown';
+            $_SESSION['error'] = "Your account ({$from['account_number']}) is not active (status: {$fromStatus}).";
+            return false;
+        }
+
+        // Resolve recipient account by id or account number
+        $to = null;
+        if (is_numeric($toAccountIdentifier)) {
+            $to = $this->findById((int)$toAccountIdentifier);
+        } else {
+            $to = $this->findByAccountNumberAnyStatus($toAccountIdentifier);
+        }
+
+        if (!$to) {
+            $_SESSION['error'] = "Recipient account not found.";
+            return false;
+        }
+        if (!isset($to['status']) || $to['status'] !== 'Active') {
+            $toStatus = isset($to['status']) ? $to['status'] : 'unknown';
+            $_SESSION['error'] = "Recipient account ({$to['account_number']}) is not active (status: {$toStatus}).";
+            return false;
+        }
+
+        return ['from' => $from, 'to' => $to];
+    }
+
     // account update
     public function getAccountsByUserId($userId)
     {
@@ -118,7 +189,7 @@ class Account extends Model
         return mysqli_fetch_assoc($res);
     }
 
-    // Any-status account lookup (your old comment says "any" but query still uses Active)
+    // Any-status account lookup (returns account regardless of status)
     public function findByAccountNumberAnyStatus($accountNumber)
     {
         $accountNumberEsc = mysqli_real_escape_string($this->db, $accountNumber);
@@ -128,7 +199,6 @@ class Account extends Model
             FROM account a
             INNER JOIN profile p ON p.id = a.profile_id
             WHERE a.account_number = '$accountNumberEsc'
-              AND a.status = 'Active'
             LIMIT 1
         ";
 
@@ -143,6 +213,13 @@ class Account extends Model
     // Deposit money
     public function depositToAccount($accountId, $amount, $performedBy)
     {
+        // Ensure account is active before allowing deposit
+        $acc = $this->requireActive($accountId);
+        if ($acc === false) {
+            // session error already set by requireActive
+            return false;
+        }
+
         $accountId   = (int)$accountId;
         $amount      = (float)$amount;
         $performedBy = (int)$performedBy;
@@ -156,6 +233,7 @@ class Account extends Model
 
         $res = mysqli_query($this->db, $sql);
         if (!$res) {
+            $_SESSION['error'] = "Database error while depositing.";
             return false;
         }
 
@@ -166,6 +244,7 @@ class Account extends Model
 
         $res2 = mysqli_query($this->db, $sql2);
         if (!$res2) {
+            $_SESSION['error'] = "Database error while recording deposit transaction.";
             return false;
         }
 
@@ -175,6 +254,13 @@ class Account extends Model
     // Withdraw money
     public function withdrawFromAccount($accountId, $amount, $performedBy)
     {
+        // Ensure account is active before allowing withdraw
+        $acc = $this->requireActive($accountId);
+        if ($acc === false) {
+            // session error already set by requireActive
+            return false;
+        }
+
         $accountId   = (int)$accountId;
         $amount      = (float)$amount;
         $performedBy = (int)$performedBy;
@@ -188,6 +274,7 @@ class Account extends Model
 
         $res = mysqli_query($this->db, $sql);
         if (!$res) {
+            $_SESSION['error'] = "Database error while withdrawing.";
             return false;
         }
 
@@ -198,6 +285,7 @@ class Account extends Model
 
         $res2 = mysqli_query($this->db, $sql2);
         if (!$res2) {
+            $_SESSION['error'] = "Database error while recording withdraw transaction.";
             return false;
         }
 
@@ -207,6 +295,14 @@ class Account extends Model
     // Transfer between two accounts
     public function transferBetweenAccounts($fromAccountId, $toAccountId, $amount, $performedBy)
     {
+        // Ensure both accounts are active before allowing transfer
+        // $toAccountId may be numeric id; if it's actually an account number string, caller should resolve it first.
+        $pair = $this->requireActiveBoth($fromAccountId, $toAccountId);
+        if ($pair === false) {
+            // session error already set by requireActiveBoth
+            return false;
+        }
+
         $fromAccountId = (int)$fromAccountId;
         $toAccountId   = (int)$toAccountId;
         $amount        = (float)$amount;
@@ -221,6 +317,7 @@ class Account extends Model
         ";
         $res1 = mysqli_query($this->db, $sql1);
         if (!$res1) {
+            $_SESSION['error'] = "Database error while debiting sender account.";
             return false;
         }
 
@@ -233,6 +330,7 @@ class Account extends Model
         ";
         $res2 = mysqli_query($this->db, $sql2);
         if (!$res2) {
+            $_SESSION['error'] = "Database error while crediting recipient account.";
             return false;
         }
 
@@ -243,6 +341,7 @@ class Account extends Model
         ";
         $res3 = mysqli_query($this->db, $sql3);
         if (!$res3) {
+            $_SESSION['error'] = "Database error while recording sender transaction.";
             return false;
         }
 
@@ -253,6 +352,7 @@ class Account extends Model
         ";
         $res4 = mysqli_query($this->db, $sql4);
         if (!$res4) {
+            $_SESSION['error'] = "Database error while recording recipient transaction.";
             return false;
         }
 

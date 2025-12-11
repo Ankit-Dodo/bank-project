@@ -34,8 +34,7 @@ class CustomerController extends Controller
             $address   = trim($_POST['address']);
             $phone     = trim($_POST['phone']);
 
-            // ❗ Country NOT saved or validated
-            // $country = $_POST['country']; <-- IGNORED
+            // Country NOT saved or validated
 
             if ($full_name === "" || $dob === "" || $address === "" || $phone === "") {
                 $error = "All fields are required except country.";
