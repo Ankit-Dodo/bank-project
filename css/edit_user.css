@@ -1,0 +1,173 @@
+/* Page wrapper & center layout */
+.form-container-center {
+  max-width: 880px;
+  margin: 28px auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.admin-edit-container {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 22px;
+  box-shadow: 0 6px 20px rgba(18, 35, 70, 0.06);
+  border: 1px solid rgba(20,20,30,0.04);
+}
+
+/* Title centered */
+.page-title-center {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #173c8f;
+  margin: 6px 0 18px;
+}
+
+/* Two-column layout for select + load button */
+.admin-edit-select-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.admin-edit-select {
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #dbe4f5;
+  background: #fbfdff;
+  min-width: 260px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.admin-edit-load-btn {
+  padding: 10px 14px;
+  font-size: 14px;
+  background: #2f80ed;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background .18s ease, transform .08s ease;
+}
+
+.admin-edit-load-btn:hover { background: #2266d1; transform: translateY(-1px); }
+.admin-edit-load-btn:active { transform: translateY(0); }
+
+/* Main edit form */
+.admin-edit-form {
+  margin-top: 8px;
+}
+
+.admin-edit-form .form-group {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-edit-form label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1f2d4b;
+}
+
+.admin-edit-form input[type="text"],
+.admin-edit-form input[type="email"],
+.admin-edit-form input[type="password"],
+.admin-edit-form textarea,
+.admin-edit-form select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e3eaf7;
+  background: #fbfdff;
+  font-size: 14px;
+  outline: none;
+  transition: box-shadow .12s ease, border-color .12s ease;
+}
+
+.admin-edit-form input:focus,
+.admin-edit-form textarea:focus,
+.admin-edit-form select:focus {
+  border-color: #a7c0ff;
+  box-shadow: 0 6px 18px rgba(47,128,237,0.06);
+}
+
+.admin-edit-form textarea {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.4;
+  padding-top: 10px;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #1e90ff;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  transition: background .15s ease, transform .06s ease;
+}
+
+.btn-primary:hover { background: #166fdb; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+/* Small helper / info text */
+.admin-edit-form hr {
+  border: none;
+  border-top: 1px solid #eef3ff;
+  margin: 16px 0;
+}
+
+/* Error messages (inline validation) */
+.error-message {
+  color: #b31b1b;
+  font-size: 13px;
+  margin-top: 6px;
+  display: block;
+}
+
+/* Success / general message area (if needed inside view) */
+.edit-success {
+  background: #e6ffed;
+  color: #1f7a3a;
+  border: 1px solid #b8efc3;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Responsiveness */
+@media (max-width: 720px) {
+  .form-container-center { padding: 14px; margin: 16px; }
+  .admin-edit-select-form { flex-direction: column; align-items: stretch; }
+  .admin-edit-load-btn { width: 100%; }
+  .admin-edit-select { width: 100%; }
+}
+
+/* Tiny polish: status badge (reused style) */
+.status-badge {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  background: #6b7280;
+}
+
+/* Accessiblity: focus outlines */
+.admin-edit-load-btn:focus,
+.btn-primary:focus,
+.admin-edit-select:focus {
+  outline: 3px solid rgba(47,128,237,0.12);
+  outline-offset: 2px;
+}
