@@ -90,7 +90,7 @@ class WithdrawController extends Controller
                             }
 
                             /* Check minimum balance rule */
-                            elseif (($accountInfo['balance'] - $amount) < $accountInfo['min_balance']) {
+                            elseif (($accountInfo['balance'] - $amount) < 0) {
                                 $errorMessage = "Cannot withdraw. Minimum balance limit reached.";
                             }
 

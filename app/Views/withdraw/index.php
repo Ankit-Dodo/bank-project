@@ -75,8 +75,14 @@
                             <option value="">-- No Accounts Found --</option>
                         <?php else: ?>
                             <option value="">-- Select Account --</option>
-                            <?php foreach ($userAccounts as $acc): ?>
-                                <option value="<?php echo $acc['id']; ?>">
+                            <?php foreach ($userAccounts as $acc):
+                                // add data attributes for client-side checks
+                                $bal = isset($acc['balance']) ? number_format((float)$acc['balance'], 2, '.', '') : '0.00';
+                                $min = isset($acc['min_balance']) ? number_format((float)$acc['min_balance'], 2, '.', '') : '0.00';
+                                ?>
+                                <option value="<?php echo $acc['id']; ?>"
+                                        data-balance="<?php echo $bal; ?>"
+                                        data-min="<?php echo $min; ?>">
                                     <?php echo $acc['account_type'] . " - " . $acc['account_number'] .
                                         " (₹" . number_format($acc['balance'], 2) . ")"; ?>
                                 </option>
@@ -91,7 +97,7 @@
                 <div class="withdraw-col">
                     <label>Amount (Rs.)</label>
                     <input type="number" step="0.01" min="0" name="amount"
-                        class="withdraw-input" value="<?php echo $amountValue; ?>">
+                        class="withdraw-input" id="withdraw_amount" value="<?php echo $amountValue; ?>">
                 </div>
             </div>
 
@@ -110,8 +116,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector(".withdraw-form");
   if (!form) return;
-  const amountInput = form.querySelector("input[name='amount']");
+  const amountInput = form.querySelector("#withdraw_amount");
   const userSelect = document.getElementById("user_id");
+  const accountSelect = document.getElementById("account_id");
   // find the actual submit button so we can click it programmatically later
   const submitBtn = form.querySelector("button[type='submit'][name='action']");
 
@@ -124,20 +131,75 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Confirmation handler
-  function onSubmit(e) {
+  // helper: show low-balance confirmation, returns Promise<boolean>
+  function showLowBalanceConfirm(currentBal, minBal, amount) {
+    const html = "<div style='text-align:left'>" +
+                 "<strong>Current balance:</strong> ₹" + parseFloat(currentBal).toFixed(2) + "<br>" +
+                 "<strong>Minimum balance:</strong> ₹" + parseFloat(minBal).toFixed(2) + "<br>" +
+                 "<strong>After withdraw (before fees):</strong> ₹" + (parseFloat(currentBal) - parseFloat(amount)).toFixed(2) +
+                 "</div>";
+    return Swal.fire({
+      title: "Low balance — continue?",
+      html: html,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Continue",
+      cancelButtonText: "No, Cancel"
+    }).then(res => res.isConfirmed);
+  }
+
+  // Confirmation handler (async to allow low balance confirm)
+  async function onSubmit(e) {
     // If this submit was triggered by the userSelect change, allow it.
     if (form.dataset.skipConfirm === "true") {
       delete form.dataset.skipConfirm;
       return; // allow normal submit
     }
 
-    // Prevent default and show confirmation
     e.preventDefault();
 
     // Take the amount exactly as the user entered (no formatting)
-    let amount = amountInput ? amountInput.value : '';
+    let amount = amountInput ? parseFloat(amountInput.value || 0) : 0;
 
+    // ensure account selected
+    const selectedOpt = accountSelect ? accountSelect.options[accountSelect.selectedIndex] : null;
+    if (!selectedOpt || !selectedOpt.value) {
+      Swal.fire({
+        icon: "error",
+        title: "No account selected",
+        text: "Please select an account to withdraw from."
+      });
+      return;
+    }
+
+    // read balances from data attributes
+    const currentBal = parseFloat(selectedOpt.dataset.balance || "0");
+    const minBal = parseFloat(selectedOpt.dataset.min || "0");
+
+    // If this would go below zero -> show error and stop
+    if ((currentBal - amount) < 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Insufficient funds",
+        text: "This withdrawal would make your balance go below 0. Transaction cancelled."
+      });
+      return;
+    }
+
+    // If this would go below min but not below 0 -> show low-balance confirmation first
+    if ((currentBal - amount) < minBal) {
+      const proceed = await showLowBalanceConfirm(currentBal, minBal, amount);
+      if (!proceed) {
+        Swal.fire({
+          icon: "info",
+          title: "Cancelled",
+          text: "Withdrawal cancelled."
+        });
+        return;
+      }
+    }
+
+    // Now show the original confirm withdrawal dialog
     Swal.fire({
       title: "Confirm Withdrawal",
       text: "Are you sure you want to withdraw ₹" + amount + "?",

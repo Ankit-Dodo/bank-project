@@ -16,7 +16,7 @@
             if (window.Swal) {
               Swal.fire({
                 icon: msgType === 'error' ? 'error' : 'success',
-                title: msgType === 'error' ? 'Error' : 'Success',
+                title: msgType === 'error' ? 'Transaction Failed' : 'Success',
                 text: msg,
                 confirmButtonText: 'OK'
               });
@@ -26,7 +26,7 @@
               s.onload = function() {
                 Swal.fire({
                   icon: msgType === 'error' ? 'error' : 'success',
-                  title: msgType === 'error' ? 'Error' : 'Success',
+                  title: msgType === 'error' ? 'Transaction Failed' : 'Success',
                   text: msg,
                   confirmButtonText: 'OK'
                 });
@@ -83,8 +83,14 @@
                             <option value="">-- No Accounts Found --</option>
                         <?php else: ?>
                             <option value="">-- Select Account --</option>
-                            <?php foreach ($fromAccounts as $acc): ?>
+                            <?php foreach ($fromAccounts as $acc):
+                                // prepare data attributes for client-side checks
+                                $bal = isset($acc['balance']) ? number_format((float)$acc['balance'], 2, '.', '') : '0.00';
+                                $min = isset($acc['min_balance']) ? number_format((float)$acc['min_balance'], 2, '.', '') : '0.00';
+                                ?>
                                 <option value="<?= (int)$acc['id'] ?>"
+                                    data-balance="<?= $bal; ?>"
+                                    data-min="<?= $min; ?>"
                                     <?= ($fromAccountId == $acc['id']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($acc['account_number']) ?>
                                     - <?= htmlspecialchars($acc['account_type']) ?>
@@ -148,7 +154,7 @@
 </div>
 
 
-<!-- AUTO-LOAD ACCOUNTS ON USER CHANGE (ADMIN ONLY) + Confirmation -->
+<!-- AUTO-LOAD ACCOUNTS ON USER CHANGE (ADMIN ONLY) + Confirmation + Low-balance checks -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const userSelect = document.getElementById("user_id");
@@ -157,6 +163,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const amountInput = form.querySelector("input[name='amount']");
     const submitBtn = form.querySelector("button[type='submit'][name='action'][value='transfer']");
+    const fromSelect = document.getElementById("from_account_id");
+    const toSelect = document.getElementById("to_account_id");
 
     // When admin changes user, submit form and skip confirmation
     if (userSelect) {
@@ -166,8 +174,25 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Confirmation handler
-    function onSubmit(e) {
+    // helper: show low-balance confirmation, returns Promise<boolean>
+    function showLowBalanceConfirm(currentBal, minBal, amount) {
+      const html = "<div style='text-align:left'>" +
+                   "<strong>Current balance:</strong> ₹" + parseFloat(currentBal).toFixed(2) + "<br>" +
+                   "<strong>Minimum balance:</strong> ₹" + parseFloat(minBal).toFixed(2) + "<br>" +
+                   "<strong>After transfer:</strong> ₹" + (parseFloat(currentBal) - parseFloat(amount)).toFixed(2) +
+                   "</div>";
+      return Swal.fire({
+        title: "Low balance — continue?",
+        html: html,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Continue",
+        cancelButtonText: "No, Cancel"
+      }).then(res => res.isConfirmed);
+    }
+
+    // Confirmation handler (async to allow low-balance confirm)
+    async function onSubmit(e) {
         // If triggered by userSelect change, allow normal submit
         if (form.dataset.skipConfirm === "true") {
             delete form.dataset.skipConfirm;
@@ -176,9 +201,77 @@ document.addEventListener("DOMContentLoaded", function () {
 
         e.preventDefault();
 
-        // Amount exactly as typed
-        const amount = amountInput ? amountInput.value : '';
+        // amount exactly as typed
+        const amount = amountInput ? parseFloat(amountInput.value || 0) : 0;
 
+        // validate selections
+        const fromOpt = fromSelect ? fromSelect.options[fromSelect.selectedIndex] : null;
+        const toOpt = toSelect ? toSelect.options[toSelect.selectedIndex] : null;
+
+        if (!fromOpt || !fromOpt.value) {
+            Swal.fire({
+                icon: "error",
+                title: "No source account",
+                text: "Please select a source (From) account."
+            });
+            return;
+        }
+
+        if (!toOpt || !toOpt.value) {
+            Swal.fire({
+                icon: "error",
+                title: "No destination account",
+                text: "Please select a destination (To) account."
+            });
+            return;
+        }
+
+        if (fromOpt.value === toOpt.value) {
+            Swal.fire({
+                icon: "error",
+                title: "Same account selected",
+                text: "Source and destination accounts cannot be the same."
+            });
+            return;
+        }
+
+        if (!amount || amount <= 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid amount",
+                text: "Please enter a valid transfer amount greater than 0."
+            });
+            return;
+        }
+
+        // read balances from data attributes on from account
+        const currentBal = parseFloat(fromOpt.dataset.balance || "0");
+        const minBal = parseFloat(fromOpt.dataset.min || "0");
+
+        // If this would go below zero -> show error and stop
+        if ((currentBal - amount) < 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Insufficient funds",
+                text: "This transfer would make your balance go below 0. Transaction cancelled."
+            });
+            return;
+        }
+
+        // If this would go below min but not below 0 -> show low-balance confirmation first
+        if ((currentBal - amount) < minBal) {
+            const proceed = await showLowBalanceConfirm(currentBal, minBal, amount);
+            if (!proceed) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Cancelled",
+                    text: "Transfer cancelled."
+                });
+                return;
+            }
+        }
+
+        // Now show the original confirm transfer dialog
         Swal.fire({
             title: "Confirm Transfer",
             text: "Are you sure you want to transfer ₹" + amount + "?",

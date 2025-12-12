@@ -1,5 +1,4 @@
 <?php
-// CHANGE THESE VALUES FOR YOUR SYSTEM
 $host     = "localhost";
 $dbUser   = "phpmyadmin";          
 $dbPass   = "Passw0rd!123";              

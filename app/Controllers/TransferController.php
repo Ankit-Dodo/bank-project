@@ -118,7 +118,7 @@ class TransferController extends Controller
                                 $minBalance     = (float)($fromAccountInfo['min_balance'] ?? 0);
                                 $newBalance     = $currentBalance - $amount;
 
-                                if ($newBalance < $minBalance) {
+                                if ($newBalance < 0) {
                                     $errorMessage = "Cannot transfer. This would go below the minimum balance.";
                                 } else {
                                     // Perform transfer
