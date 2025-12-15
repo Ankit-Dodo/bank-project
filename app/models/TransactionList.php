@@ -8,8 +8,8 @@ class TransactionList extends Model
             FROM `transaction` t
             JOIN account a ON t.account_id = a.id
             JOIN profile p ON a.profile_id = p.id
-            JOIN users u ON p.user_id = u.id        -- account owner
-            JOIN users pu ON t.performed_by = pu.id -- performer
+            JOIN users u ON p.user_id = u.id              -- account owner
+            LEFT JOIN users pu ON t.performed_by = pu.id  -- performer (System allowed)
         ";
     }
 
@@ -28,15 +28,15 @@ class TransactionList extends Model
         // global search
         if ($searchEsc !== "") {
             $where .= " AND (
-                p.full_name        LIKE '%$searchEsc%' OR
-                p.phone           LIKE '%$searchEsc%' OR
-                u.username        LIKE '%$searchEsc%' OR
-                u.email           LIKE '%$searchEsc%' OR
-                a.account_number  LIKE '%$searchEsc%' OR
+                p.full_name         LIKE '%$searchEsc%' OR
+                p.phone            LIKE '%$searchEsc%' OR
+                u.username         LIKE '%$searchEsc%' OR
+                u.email            LIKE '%$searchEsc%' OR
+                a.account_number   LIKE '%$searchEsc%' OR
                 t.transaction_type LIKE '%$searchEsc%' OR
-                t.status          LIKE '%$searchEsc%' OR
-                pu.username       LIKE '%$searchEsc%' OR
-                t.amount          LIKE '%$searchEsc%'
+                t.status           LIKE '%$searchEsc%' OR
+                COALESCE(pu.username,'System') LIKE '%$searchEsc%' OR
+                t.amount           LIKE '%$searchEsc%'
             )";
         }
 
@@ -45,7 +45,7 @@ class TransactionList extends Model
             $where .= " AND p.full_name LIKE '%$filterNameEsc%'";
         }
 
-        // filter by date range (transaction_date)
+        // filter by date range
         if ($filterType === 'date') {
             if ($filterFromEsc !== '') {
                 $where .= " AND t.transaction_date >= '{$filterFromEsc} 00:00:00'";
@@ -55,7 +55,7 @@ class TransactionList extends Model
             }
         }
 
-        return [$where, $searchEsc, $filterNameEsc, $filterFromEsc, $filterToEsc];
+        return [$where];
     }
 
     /**
@@ -73,8 +73,7 @@ class TransactionList extends Model
             $filterTo
         );
 
-        $baseFrom = $this->buildBaseFrom();
-        $sql = "SELECT COUNT(*) AS total " . $baseFrom . " " . $where;
+        $sql = "SELECT COUNT(*) AS total " . $this->buildBaseFrom() . " " . $where;
 
         $res = mysqli_query($this->db, $sql);
         if (!$res) {
@@ -82,9 +81,7 @@ class TransactionList extends Model
         }
 
         $row = mysqli_fetch_assoc($res);
-        $total = (int)($row['total'] ?? 0);
-
-        return [$total, null];
+        return [(int)$row['total'], null];
     }
 
     /**
@@ -102,16 +99,15 @@ class TransactionList extends Model
             $filterTo
         );
 
-        // ORDER BY logic
-        $orderBy = "ORDER BY t.transaction_date DESC";
+        $orderBy = "ORDER BY t.id DESC";
         if ($sort === 'name_asc') {
-            $orderBy = "ORDER BY p.full_name ASC, t.transaction_date DESC";
+            $orderBy = "ORDER BY p.full_name ASC, t.id DESC";
         } elseif ($sort === 'name_desc') {
-            $orderBy = "ORDER BY p.full_name DESC, t.transaction_date DESC";
+            $orderBy = "ORDER BY p.full_name DESC, t.id DESC";
         }
 
+
         $offset = ($page - 1) * $perPage;
-        $baseFrom = $this->buildBaseFrom();
 
         $sql = "
             SELECT
@@ -125,8 +121,8 @@ class TransactionList extends Model
                 a.account_number,
                 p.full_name,
                 u.username,
-                pu.username AS performed_by_username
-            " . $baseFrom . "
+                COALESCE(pu.username, 'System') AS performed_by_username
+            " . $this->buildBaseFrom() . "
             " . $where . "
             $orderBy
             LIMIT $perPage OFFSET $offset
@@ -146,7 +142,7 @@ class TransactionList extends Model
     }
 
     /**
-     * Fetch ALL matching transactions for CSV export (no pagination).
+     * Fetch ALL matching transactions for CSV export.
      */
     public function getAllTransactions($isAdmin, $userId, $search, $sort, $filterType, $filterName, $filterFrom, $filterTo)
     {
@@ -160,15 +156,13 @@ class TransactionList extends Model
             $filterTo
         );
 
-        // ORDER BY logic same as listing
-        $orderBy = "ORDER BY t.transaction_date DESC";
+        $orderBy = "ORDER BY t.id DESC";
         if ($sort === 'name_asc') {
-            $orderBy = "ORDER BY p.full_name ASC, t.transaction_date DESC";
+            $orderBy = "ORDER BY p.full_name ASC, t.id DESC";
         } elseif ($sort === 'name_desc') {
-            $orderBy = "ORDER BY p.full_name DESC, t.transaction_date DESC";
+            $orderBy = "ORDER BY p.full_name DESC, t.id DESC";
         }
 
-        $baseFrom = $this->buildBaseFrom();
 
         $sql = "
             SELECT
@@ -182,8 +176,8 @@ class TransactionList extends Model
                 a.account_number,
                 p.full_name,
                 u.username,
-                pu.username AS performed_by_username
-            " . $baseFrom . "
+                COALESCE(pu.username, 'System') AS performed_by_username
+            " . $this->buildBaseFrom() . "
             " . $where . "
             $orderBy
         ";

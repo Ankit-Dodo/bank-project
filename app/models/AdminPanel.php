@@ -7,7 +7,7 @@ class AdminPanel extends Model
         parent::__construct();
     }
 
-    /* ====== DASHBOARD STATS ====== */
+    /* DASHBOARD STATS */
 
     public function getStatistics()
     {
@@ -62,7 +62,7 @@ class AdminPanel extends Model
         return $data;
     }
 
-    /* ====== PENDING ACCOUNTS (RESULT RESOURCE FOR VIEW) ====== */
+    /*PENDING ACCOUNTS (RESULT RESOURCE FOR VIEW)*/
 
     public function getPendingAccounts()
     {
@@ -98,7 +98,7 @@ class AdminPanel extends Model
         return $res;
     }
 
-    /* ====== ALL ACCOUNTS LIST WITH SEARCH + PAGINATION ====== */
+    /*ALL ACCOUNTS LIST WITH SEARCH + PAGINATION*/
 
     public function countPages($search, $perPage)
     {
@@ -206,7 +206,7 @@ class AdminPanel extends Model
     }
 
 
-    /* ====== ADMIN ACTIONS: APPROVE / DECLINE / DELETE ====== */
+    /*ADMIN ACTIONS: APPROVE / DECLINE / DELETE*/
 
     public function approveAccount($accountId)
     {

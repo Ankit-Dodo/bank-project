@@ -1,13 +1,4 @@
 <?php
-/**
- * Reusable pagination partial.
- *
- * Expects:
- *   $paginationBaseUrl   string  e.g. "index.php"
- *   $paginationPage      int     current page
- *   $paginationTotalPages int    total pages
- *   $paginationParams    array   extra query params (url, search, filters, etc.)
- */
 
 if (!isset($paginationBaseUrl, $paginationPage, $paginationTotalPages)) {
     return;

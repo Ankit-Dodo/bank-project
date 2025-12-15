@@ -8,7 +8,7 @@ class AuthController extends Controller
             session_start();
         }
 
-        // If already logged in → go to dashboard
+        // If already logged in then go to dashboard
         if (!empty($_SESSION['user_id'])) {
             header("Location: index.php?url=dashboard/index");
             exit;
@@ -194,15 +194,7 @@ class AuthController extends Controller
             session_start();
         }
 
-        // clear session completely
-        $_SESSION = [];
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params["path"], $params["domain"],
-                $params["secure"], $params["httponly"]
-            );
-        }
+       
         session_destroy();
 
         header("Location: index.php?url=auth/login");

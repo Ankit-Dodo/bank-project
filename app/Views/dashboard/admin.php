@@ -219,7 +219,7 @@ Swal.fire({
                     
                     <td>
                         <a class="btn-delete"
-                           href="javascript:void(0);"
+                           href="#"
                            onclick="confirmDelete(<?php echo (int)$row['id']; ?>);">
                            Delete
                         </a>

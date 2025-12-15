@@ -92,7 +92,7 @@ $userRole = $_SESSION['user_role'] ?? ($_SESSION['role'] ?? null);
 
     <!-- Home -->
     <a href="index.php?url=dashboard/index"
-       class="tile-link <?php echo ($currentUrl === 'home/index') ? 'active-tile' : ''; ?>">
+       class="tile-link <?php echo ($currentUrl === 'dashboard') ? 'active-tile' : ''; ?>">
        Dashboard
     </a>
 

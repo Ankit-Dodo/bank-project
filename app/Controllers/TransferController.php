@@ -27,7 +27,7 @@ class TransferController extends Controller
         $role         = strtolower($user['role'] ?? '');
         $accountModel = $this->model("Account");
 
-        // For admin, show list of non-admin users; for customer, empty
+        // For admin, show list of non-admin users
         $usersList = ($role === 'admin')
             ? $userModel->getAllNonAdminUsers()
             : [];
@@ -44,28 +44,26 @@ class TransferController extends Controller
         $fromAccountInfo = null;
         $toAccountInfo   = null;
 
-        // Load TO accounts list (all active accounts, any user)
+        // Load TO accounts (all active accounts)
         $toAccounts = $accountModel->getAllAccountsList();
 
-        // For customers (GET), immediately load their FROM accounts
+        // For customers, load FROM accounts on GET
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $role !== 'admin') {
             $fromAccounts = $accountModel->getByUser($currentUserId);
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // For admin: take selected user from form, for customer: fixed
+            // Admin can choose user
             if ($role === 'admin') {
                 $selectedUserId = (int)($_POST['user_id'] ?? 0);
             } else {
                 $selectedUserId = $currentUserId;
             }
 
-            // Load FROM accounts for that user
+            // Load FROM accounts
             if ($selectedUserId > 0) {
                 $fromAccounts = $accountModel->getByUser($selectedUserId);
-            } else {
-                $fromAccounts = [];
             }
 
             $fromAccountId = (int)($_POST['from_account_id'] ?? 0);
@@ -76,52 +74,66 @@ class TransferController extends Controller
             if ($action === 'transfer') {
 
                 // Validation
-                if ($role === 'admin' && $selectedUserId <= 0) {
+                if ($role === 'admin' && $selectedUserId <= 0)
                     $errorMessage = "Please select a user.";
-                } elseif (empty($fromAccounts)) {
-                    $errorMessage = "No accounts available for the selected user.";
-                } elseif ($fromAccountId <= 0) {
-                    $errorMessage = "Please select a 'From' account.";
-                } elseif ($toAccountId <= 0) {
-                    $errorMessage = "Please select a 'To' account.";
-                } elseif ($toAccountId === $fromAccountId) {
-                    $errorMessage = "You cannot transfer between the same account.";
-                } elseif ($amountValue === "") {
+
+                elseif ($fromAccountId <= 0)
+                    $errorMessage = "Please select a From account.";
+
+                elseif ($toAccountId <= 0)
+                    $errorMessage = "Please select a To account.";
+
+                elseif ($fromAccountId === $toAccountId)
+                    $errorMessage = "You cannot transfer to the same account.";
+
+                elseif ($amountValue === "")
                     $errorMessage = "Please enter an amount.";
-                } elseif (!is_numeric($amountValue)) {
+
+                elseif (!is_numeric($amountValue))
                     $errorMessage = "Amount must be numeric.";
-                } else {
+
+                else {
+
                     $amount = (float)$amountValue;
 
-                    if ($amount <= 0) {
+                    if ($amount <= 0)
                         $errorMessage = "Amount must be greater than zero.";
-                    } else {
-                        // Load accounts
+
+                    else {
+
                         $fromAccountInfo = $accountModel->findById($fromAccountId);
                         $toAccountInfo   = $accountModel->findById($toAccountId);
 
-                        if (!$fromAccountInfo) {
+                        if (!$fromAccountInfo)
                             $errorMessage = "From account not found.";
-                        } elseif (!$toAccountInfo) {
+
+                        elseif (!$toAccountInfo)
                             $errorMessage = "To account not found.";
-                        } else {
-                            // If customer, ensure FROM account belongs to them
+
+                        else {
+
+                            // customer safety
                             if ($role !== 'admin' && (int)$fromAccountInfo['user_id'] !== $currentUserId) {
                                 $errorMessage = "You cannot transfer from another user's account.";
-                            } elseif (strcasecmp($fromAccountInfo['status'] ?? '', 'Active') !== 0) {
-                                $errorMessage = "From account is not active.";
-                            } elseif (strcasecmp($toAccountInfo['status'] ?? '', 'Active') !== 0) {
-                                $errorMessage = "To account is not active.";
-                            } else {
-                                // Check minimum balance
-                                $currentBalance = (float)($fromAccountInfo['balance'] ?? 0);
-                                $minBalance     = (float)($fromAccountInfo['min_balance'] ?? 0);
-                                $newBalance     = $currentBalance - $amount;
+                            }
 
-                                if ($newBalance < 0) {
-                                    $errorMessage = "Cannot transfer. This would go below the minimum balance.";
+                            elseif (strcasecmp($fromAccountInfo['status'], 'Active') !== 0)
+                                $errorMessage = "From account is not active.";
+
+                            elseif (strcasecmp($toAccountInfo['status'], 'Active') !== 0)
+                                $errorMessage = "To account is not active.";
+
+                            else {
+
+                                $currentBalance = (float)$fromAccountInfo['balance'];
+                                $minBalance     = (float)$fromAccountInfo['min_balance'];
+                                $afterBalance   = $currentBalance - $amount;
+
+                                // Block only if balance < 0
+                                if ($afterBalance < 0) {
+                                    $errorMessage = "Insufficient balance. Transfer cancelled.";
                                 } else {
-                                    // Perform transfer
+
                                     $ok = $accountModel->transferBetweenAccounts(
                                         $fromAccountId,
                                         $toAccountId,
@@ -130,11 +142,28 @@ class TransferController extends Controller
                                     );
 
                                     if ($ok) {
-                                        $successMessage  = "Transfer of Rs. " . number_format($amount, 2) . " completed successfully.";
+
+                                        // APPLY 1% FINE IF BELOW MIN BALANCE
+                                        if ($afterBalance < $minBalance) {
+
+                                            $fine = round($amount * 0.01, 2);
+                                            $accountModel->applyFine($fromAccountId, $fine);
+
+                                            $successMessage =
+                                                "Transfer of Rs. " . number_format($amount, 2) .
+                                                " completed. Low balance fine of Rs. " .
+                                                number_format($fine, 2) . " applied.";
+                                        } else {
+                                            $successMessage =
+                                                "Transfer of Rs. " . number_format($amount, 2) .
+                                                " completed successfully.";
+                                        }
+
                                         $fromAccountInfo = $accountModel->findById($fromAccountId);
                                         $toAccountInfo   = $accountModel->findById($toAccountId);
                                         $fromAccounts    = $accountModel->getByUser($selectedUserId);
                                         $toAccounts      = $accountModel->getAllAccountsList();
+
                                     } else {
                                         $errorMessage = "Transfer failed. Please try again.";
                                     }

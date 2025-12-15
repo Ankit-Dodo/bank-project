@@ -105,7 +105,7 @@ class TransactionController extends Controller
             fclose($out);
             exit;
         }
-        /* ========== END EXPORT CSV BRANCH ========== */
+        /*  END EXPORT CSV BRANCH  */
 
         // pagination
         $perPage = 25;

@@ -7,9 +7,9 @@ class Profile extends Model
         parent::__construct();
     }
 
-    /* ============================
+    /*
        GET PROFILE BY USER ID
-    ============================ */
+    */
     public function getByUserId($userId)
     {
         $userId = (int)$userId;
@@ -25,15 +25,15 @@ class Profile extends Model
 
         return [
             "full_name" => $row["full_name"],
-            "dob"       => $row["DOB"],      // FIXED
-            "address"   => $row["Address"],  // FIXED
+            "dob"       => $row["DOB"],      
+            "address"   => $row["Address"],  
             "phone"     => $row["phone"]
         ];
     }
 
-    /* ============================
+    /*
        UPDATE OR INSERT PROFILE
-    ============================ */
+    */
     public function updateProfile($userId, $full_name, $dob, $address, $phone)
     {
         $userId = (int)$userId;

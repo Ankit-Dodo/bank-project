@@ -133,20 +133,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // helper: show low-balance confirmation, returns Promise<boolean>
   function showLowBalanceConfirm(currentBal, minBal, amount) {
-    const html = "<div style='text-align:left'>" +
-                 "<strong>Current balance:</strong> ₹" + parseFloat(currentBal).toFixed(2) + "<br>" +
-                 "<strong>Minimum balance:</strong> ₹" + parseFloat(minBal).toFixed(2) + "<br>" +
-                 "<strong>After withdraw (before fees):</strong> ₹" + (parseFloat(currentBal) - parseFloat(amount)).toFixed(2) +
-                 "</div>";
-    return Swal.fire({
-      title: "Low balance — continue?",
-      html: html,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Continue",
-      cancelButtonText: "No, Cancel"
-    }).then(res => res.isConfirmed);
-  }
+  const fine = (amount * 0.01).toFixed(2);
+
+  const html =
+    "<div style='text-align:left'>" +
+    "<strong>Current balance:</strong> ₹" + parseFloat(currentBal).toFixed(2) + "<br>" +
+    "<strong>Minimum balance:</strong> ₹" + parseFloat(minBal).toFixed(2) + "<br>" +
+    "<strong>After withdrawal:</strong> ₹" + (parseFloat(currentBal) - parseFloat(amount)).toFixed(2) + "<br><br>" +
+    "<span style='color:#c0392b'><strong>⚠ Penalty:</strong> ₹" + fine +
+    " (1% fine will be deducted)</span>" +
+    "</div>";
+
+  return Swal.fire({
+    title: "Low balance warning",
+    html: html,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, proceed & accept fine",
+    cancelButtonText: "Cancel"
+  }).then(res => res.isConfirmed);
+}
+
 
   // Confirmation handler (async to allow low balance confirm)
   async function onSubmit(e) {

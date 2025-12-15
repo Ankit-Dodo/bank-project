@@ -20,7 +20,9 @@ class WithdrawController extends Controller
         $userModel = $this->model("User");
         $user      = $userModel->findById($userId);
 
-        if (!$user) die("User not found.");
+        if (!$user) {
+            die("User not found.");
+        }
 
         $role = strtolower($user['role']);
         $accountModel = $this->model("Account");
@@ -58,43 +60,46 @@ class WithdrawController extends Controller
 
             if ($action === 'withdraw') {
 
-                if ($selectedUserId <= 0)
+                if ($selectedUserId <= 0) {
                     $errorMessage = "Please select a user.";
-
-                elseif ($selectedAccountId <= 0)
+                }
+                elseif ($selectedAccountId <= 0) {
                     $errorMessage = "Please select an account.";
-
-                elseif ($amountValue === "")
+                }
+                elseif ($amountValue === "") {
                     $errorMessage = "Please enter an amount.";
-
-                elseif (!is_numeric($amountValue))
+                }
+                elseif (!is_numeric($amountValue)) {
                     $errorMessage = "Amount must be numeric.";
-
+                }
                 else {
 
                     $amount = (float)$amountValue;
 
-                    if ($amount <= 0)
+                    if ($amount <= 0) {
                         $errorMessage = "Amount must be greater than zero.";
+                    }
                     else {
 
                         $accountInfo = $accountModel->findById($selectedAccountId);
 
-                        if (!$accountInfo)
+                        if (!$accountInfo) {
                             $errorMessage = "Account not found.";
-
+                        }
                         else {
-                            /* Ensure account belongs to customer if customer is withdrawing */
+
+                            /* Customer safety */
                             if ($role === "customer" && (int)$accountInfo['user_id'] !== $userId) {
                                 $errorMessage = "You cannot withdraw from another user's account.";
                             }
 
-                            /* Check minimum balance rule */
+                            /* Block ONLY if balance goes below 0 */
                             elseif (($accountInfo['balance'] - $amount) < 0) {
-                                $errorMessage = "Cannot withdraw. Minimum balance limit reached.";
+                                $errorMessage = "Insufficient balance. Transaction cancelled.";
                             }
 
                             else {
+
                                 $ok = $accountModel->withdrawFromAccount(
                                     $selectedAccountId,
                                     $amount,
@@ -102,10 +107,29 @@ class WithdrawController extends Controller
                                 );
 
                                 if ($ok) {
-                                    $successMessage = "Successfully withdrawn Rs. " . number_format($amount, 2);
-                                    $accountInfo = $accountModel->findById($selectedAccountId);
+
+                                    $afterBalance = $accountInfo['balance'] - $amount;
+
+                                    /* APPLY 1% FINE IF BELOW MIN BALANCE */
+                                    if ($afterBalance < $accountInfo['min_balance']) {
+
+                                        $fine = round($amount * 0.01, 2);
+                                        $accountModel->applyFine($selectedAccountId, $fine);
+
+                                        $successMessage =
+                                            "Rs. " . number_format($amount, 2) .
+                                            " withdrawn. Low balance fine of Rs. " .
+                                            number_format($fine, 2) . " applied.";
+                                    }
+                                    else {
+                                        $successMessage =
+                                            "Successfully withdrawn Rs. " . number_format($amount, 2);
+                                    }
+
+                                    $accountInfo  = $accountModel->findById($selectedAccountId);
                                     $userAccounts = $accountModel->getByUser($selectedUserId);
-                                } else {
+                                }
+                                else {
                                     $errorMessage = "Withdrawal failed, try again.";
                                 }
                             }
@@ -115,6 +139,7 @@ class WithdrawController extends Controller
             }
         }
 
+        /* VIEW */
         $this->view("withdraw/index", [
             "title"             => "Withdraw",
             "user"              => $user,

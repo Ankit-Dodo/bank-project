@@ -44,10 +44,10 @@ class App
         } else {
             // If class not found, attempt to detect namespace declared in the file
             $fileContents = file_get_contents($controllerFilePath);
-            $ns = null;
+            $ab = null;
             if (preg_match('/namespace\s+([^;]+);/i', $fileContents, $m)) {
-                $ns = trim($m[1]);
-                $fqcn = $ns . '\\' . $this->controller;
+                $ab = trim($m[1]);
+                $fqcn = $ab . '\\' . $this->controller;
                 if (class_exists($fqcn)) {
                     $controllerClassName = $fqcn;
                 }
