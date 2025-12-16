@@ -93,14 +93,47 @@ class App
         call_user_func_array(array($this->controller, $this->method), $this->params);
     }
 
-    private function parseUrl()
-    {
-        if (!isset($_GET['url'])) {
-            return array();
-        }
+    // private function parseUrl()
+    // {
+    //     if (!isset($_GET['url'])) {
+    //         return array();
+    //     }
 
-        $url = rtrim($_GET['url'], '/');
-        $url = filter_var($url, FILTER_SANITIZE_URL);
-        return explode('/', $url);
+    //     $url = rtrim($_GET['url'], '/');
+    //     $url = filter_var($url, FILTER_SANITIZE_URL);
+    //     return explode('/', $url);
+    // }
+    private function parseUrl()
+{
+    // STRICT: only allow index.php at ROOT
+    $script = $_SERVER['SCRIPT_NAME'];      // /index.php
+    $request = $_SERVER['REQUEST_URI'];     // /dgcegd/index.php?url=...
+
+    if ($script !== '/index.php') {
+        $this->abort404();
     }
+
+    if (!isset($_GET['url'])) {
+        return [];
+    }
+
+    $url = trim($_GET['url'], '/');
+
+    // block index.php, commas, dots, weird chars
+    if (
+        str_contains($url, 'index.php') ||
+        preg_match('/[^a-zA-Z0-9\/_-]/', $url)
+    ) {
+        $this->abort404();
+    }
+
+    return explode('/', $url);
+}
+private function abort404()
+{
+    http_response_code(404);
+    echo '<h1>404 - Page Not Found</h1>';
+    exit;
+}
+
 }

@@ -117,7 +117,6 @@ class AuthController extends Controller
                 $hasUpper  = preg_match('/[A-Z]/', $password);
                 $hasLower  = preg_match('/[a-z]/', $password);
                 $hasNumber = preg_match('/[0-9]/', $password);
-                $hasSymbol = preg_match('/[\W_]/', $password); // optional
 
                 if (strlen($password) < 8) {
                     $message = "Password must be at least 8 characters long.";

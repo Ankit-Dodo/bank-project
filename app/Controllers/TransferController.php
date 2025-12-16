@@ -126,7 +126,6 @@ class TransferController extends Controller
                             else {
 
                                 $currentBalance = (float)$fromAccountInfo['balance'];
-                                $minBalance     = (float)$fromAccountInfo['min_balance'];
                                 $afterBalance   = $currentBalance - $amount;
 
                                 // Block only if balance < 0
@@ -143,22 +142,11 @@ class TransferController extends Controller
 
                                     if ($ok) {
 
-                                        // APPLY 1% FINE IF BELOW MIN BALANCE
-                                        if ($afterBalance < $minBalance) {
+                                        $successMessage =
+                                            "Transfer of Rs. " . number_format($amount, 2) .
+                                            " completed successfully.";
 
-                                            $fine = round($amount * 0.01, 2);
-                                            $accountModel->applyFine($fromAccountId, $fine);
-
-                                            $successMessage =
-                                                "Transfer of Rs. " . number_format($amount, 2) .
-                                                " completed. Low balance fine of Rs. " .
-                                                number_format($fine, 2) . " applied.";
-                                        } else {
-                                            $successMessage =
-                                                "Transfer of Rs. " . number_format($amount, 2) .
-                                                " completed successfully.";
-                                        }
-
+                                        // refresh data
                                         $fromAccountInfo = $accountModel->findById($fromAccountId);
                                         $toAccountInfo   = $accountModel->findById($toAccountId);
                                         $fromAccounts    = $accountModel->getByUser($selectedUserId);

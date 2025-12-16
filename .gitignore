@@ -1,0 +1,6 @@
+# envionment files
+
+.env
+
+# vendor
+/vendor/

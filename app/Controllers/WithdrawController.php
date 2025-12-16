@@ -32,24 +32,30 @@ class WithdrawController extends Controller
             ? $userModel->getAllNonAdminUsers()
             : [];
 
-        /* Form values */
+        /* Defaults */
         $selectedUserId    = ($role === "admin") ? 0 : $userId;
         $selectedAccountId = 0;
         $amountValue       = "";
-        $userAccounts      = [];
         $successMessage    = "";
         $errorMessage      = "";
         $accountInfo       = null;
 
+        /* Load accounts for NON-ADMIN on page load */
+        if ($role !== "admin") {
+            $userAccounts = $accountModel->getByUser($userId);
+        } else {
+            $userAccounts = [];
+        }
+
         /* POST handling */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            /* If admin: read user selection */
+            /* Admin user selection */
             if ($role === "admin") {
                 $selectedUserId = (int)($_POST['user_id'] ?? 0);
             }
 
-            /* Always load accounts for selected user */
+            /* Load accounts when user is selected */
             if ($selectedUserId > 0) {
                 $userAccounts = $accountModel->getByUser($selectedUserId);
             }
@@ -107,25 +113,10 @@ class WithdrawController extends Controller
                                 );
 
                                 if ($ok) {
+                                    $successMessage =
+                                        "Successfully withdrawn Rs. " . number_format($amount, 2);
 
-                                    $afterBalance = $accountInfo['balance'] - $amount;
-
-                                    /* APPLY 1% FINE IF BELOW MIN BALANCE */
-                                    if ($afterBalance < $accountInfo['min_balance']) {
-
-                                        $fine = round($amount * 0.01, 2);
-                                        $accountModel->applyFine($selectedAccountId, $fine);
-
-                                        $successMessage =
-                                            "Rs. " . number_format($amount, 2) .
-                                            " withdrawn. Low balance fine of Rs. " .
-                                            number_format($fine, 2) . " applied.";
-                                    }
-                                    else {
-                                        $successMessage =
-                                            "Successfully withdrawn Rs. " . number_format($amount, 2);
-                                    }
-
+                                    // refresh data
                                     $accountInfo  = $accountModel->findById($selectedAccountId);
                                     $userAccounts = $accountModel->getByUser($selectedUserId);
                                 }
