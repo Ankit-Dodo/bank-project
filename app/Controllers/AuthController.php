@@ -196,7 +196,7 @@ class AuthController extends Controller
        
         session_destroy();
 
-        header("Location: index.php?url=auth/login");
+        header("Location: " . APP_URL . "/auth/login");
         exit;
     }
 }

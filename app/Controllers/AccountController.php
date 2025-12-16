@@ -9,7 +9,7 @@ class AccountController extends Controller
         }
 
         if (!isset($_SESSION['user_id'])) {
-            header("Location: index.php?url=auth/login");
+            header("Location: " . APP_URL ."auth/login");
             exit;
         }
 
