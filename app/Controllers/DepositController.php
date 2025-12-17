@@ -1,4 +1,9 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Account;
+use App\Models\User;
 
 class DepositController extends Controller
 {
@@ -15,7 +20,7 @@ class DepositController extends Controller
 
         $adminId = (int)$_SESSION['user_id'];
 
-        $userModel = $this->model("User");
+        $userModel = new User();
         $admin     = $userModel->findById($adminId);
 
         if (!$admin) die("User not found.");
@@ -23,7 +28,7 @@ class DepositController extends Controller
         if (strtolower($admin['role']) !== 'admin')
             die("Only admin can access the deposit page.");
 
-        $accountModel = $this->model("Account");
+        $accountModel = new Account();
         $usersList    = $userModel->getAllNonAdminUsers();
 
         $successMessage    = "";

@@ -47,7 +47,7 @@
 
     <p class="auth-switch">
         No account?
-        <a href="index.php?url=auth/register">Register</a>
+        <a href="/register">Register</a>
     </p>
 </div>
 

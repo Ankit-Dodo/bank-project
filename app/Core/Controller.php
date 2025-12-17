@@ -1,10 +1,11 @@
 <?php
-
+namespace App\Core;
 class Controller
 {
     public function view($view, $data = array())
     {
         // $view e.g. "auth/login"
+
         $viewFile = APP_ROOT . '/app/Views/' . $view . '.php';
 
         if (!file_exists($viewFile)) {
@@ -26,21 +27,10 @@ class Controller
         require $layoutFile;
     }
 
-    public function model($model)
-    {
-        // looks into app/models/User.php when $model = "User"
-        $file = APP_ROOT . '/app/models/' . $model . '.php';
+    // protected function render(string $view, array $data = []){
+    //     $viewPath = APP_ROOT . "/views" . $view . ".php";
+    //     extract($data);
+    //     require $viewPath;
+    // }
 
-        if (!file_exists($file)) {
-            die("Model file not found: " . $file);
-        }
-
-        require_once $file;
-
-        if (!class_exists($model)) {
-            die("Model class '$model' not found in file: " . $file);
-        }
-
-        return new $model();
-    }
 }

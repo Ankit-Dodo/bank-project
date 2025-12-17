@@ -1,4 +1,9 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\AdminPanel;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -16,7 +21,7 @@ class AdminController extends Controller
         $userId = (int)$_SESSION['user_id'];
 
         // load user
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user) {
@@ -34,7 +39,7 @@ class AdminController extends Controller
             $tab = 'pending';
         }
 
-        $adminModel = $this->model("AdminPanel");
+        $adminModel = new AdminPanel();
 
         // stats
         $stats = $adminModel->getStatistics();
@@ -90,7 +95,7 @@ class AdminController extends Controller
 
         $userId = (int)$_SESSION['user_id'];
 
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user || strtolower($user['role']) !== 'admin') {
@@ -103,7 +108,7 @@ class AdminController extends Controller
             exit;
         }
 
-        $adminModel = $this->model("AdminPanel");
+        $adminModel = new Adminpanel();
         $ok = $adminModel->approveAccount($accountId);
 
         if ($ok) {
@@ -127,7 +132,7 @@ class AdminController extends Controller
 
         $userId = (int)$_SESSION['user_id'];
 
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user || strtolower($user['role']) !== 'admin') {
@@ -140,7 +145,7 @@ class AdminController extends Controller
             exit;
         }
 
-        $adminModel = $this->model("AdminPanel");
+        $adminModel = new Adminpanel();
         $ok = $adminModel->declineAccount($accountId);
 
         if ($ok) {
@@ -164,7 +169,7 @@ class AdminController extends Controller
 
         $userId = (int)$_SESSION['user_id'];
 
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user || strtolower($user['role']) !== 'admin') {
@@ -177,7 +182,7 @@ class AdminController extends Controller
             exit;
         }
 
-        $adminModel = $this->model("AdminPanel");
+        $adminModel = new Adminpanel();
 
         // 1) Get account info (especially balance)
         $account = $adminModel->getAccountById($accountId);

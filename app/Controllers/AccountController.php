@@ -1,4 +1,9 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Account;
+use App\Models\User;
 
 class AccountController extends Controller
 {
@@ -16,14 +21,14 @@ class AccountController extends Controller
         $userId = (int)$_SESSION['user_id'];
 
         // load current user
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user) {
             die("User not found.");
         }
 
-        $accountModel = $this->model("Account");
+        $accountModel = new Account();
 
 
         $successMessage = "";

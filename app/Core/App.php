@@ -1,5 +1,5 @@
 <?php
-
+namespace App\Core;
 class App
 {
     private $controller = 'HomeController';

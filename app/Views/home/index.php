@@ -9,14 +9,14 @@
         <?php if (!isset($_SESSION['user_id'])): ?>
             <!-- NOT LOGGED IN: show Login + Register -->
             <div class="hero-buttons">
-                <a href="index.php?url=auth/login" class="btn btn-primary">Login</a>
-                <a href="index.php?url=auth/register" class="btn btn-secondary">Register</a>
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-secondary">Register</a>
             </div>
         <?php else: ?>
             <!-- LOGGED IN: show Dashboard + Logout -->
             <div class="hero-buttons">
-                <a href="index.php?url=dashboard/index" class="btn btn-primary">Go to Dashboard</a>
-                <a href="index.php?url=auth/logout" class="btn btn-secondary">Logout</a>
+                <a href="/index" class="btn btn-primary">Go to Dashboard</a>
+                <a href="/login" class="btn btn-secondary">Logout</a>
             </div>
         <?php endif; ?>
     </div>

@@ -1,4 +1,9 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Account;
+use App\Models\User;
 
 class TransferController extends Controller
 {
@@ -17,7 +22,7 @@ class TransferController extends Controller
         $currentUserId = (int)$_SESSION['user_id'];
 
         // load current user
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($currentUserId);
 
         if (!$user) {
@@ -25,7 +30,7 @@ class TransferController extends Controller
         }
 
         $role         = strtolower($user['role'] ?? '');
-        $accountModel = $this->model("Account");
+        $accountModel = new Account();
 
         // For admin, show list of non-admin users
         $usersList = ($role === 'admin')

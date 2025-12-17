@@ -1,4 +1,8 @@
 <?php
+namespace App\Models;
+
+use App\Core\Model;
+use Exception;
 
 class Account extends Model
 {
@@ -16,7 +20,7 @@ class Account extends Model
         return (int) mysqli_fetch_assoc($res)['id'];
     }
 
-    // ✅ BACKWARD-COMPATIBLE
+    //  BACKWARD-COMPATIBLE
     public function applyFine($fromAccountId, $fineAmount, $performedBy = 0)
     {
         $fineAmount = round((float)$fineAmount, 2);

@@ -1,4 +1,9 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\TransactionList;
+use App\Models\User;
 
 class TransactionController extends Controller
 {
@@ -16,7 +21,7 @@ class TransactionController extends Controller
         $userId = (int)$_SESSION['user_id'];
 
         // load user to check role
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user) {
@@ -46,7 +51,7 @@ class TransactionController extends Controller
             $filterType = '';
         }
 
-        $transactionModel = $this->model("TransactionList");
+        $transactionModel = new TransactionList();
 
         // Export to CSV
         if ($export === 'csv') {

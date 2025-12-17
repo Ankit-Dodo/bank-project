@@ -1,4 +1,8 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Profile;
 
 class CustomerController extends Controller
 {
@@ -15,7 +19,7 @@ class CustomerController extends Controller
 
         $userId = (int)$_SESSION['user_id'];
 
-        $profileModel = $this->model("Profile");
+        $profileModel = new Profile();
         $profile      = $profileModel->getByUserId($userId);
 
         // Prefill

@@ -19,19 +19,19 @@ $currentUrl = isset($_GET['url']) ? $_GET['url'] : '';
     </title>
 
     <!-- CSS relative to public/ -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/png" href="/images/logo.png">
 </head>
 <body>
 
 <header class="navbar">
     <div class="nav-left">
-        <img src="images/logo.png" class="logo" alt="logo">
+        <img src="/images/logo.png" class="logo" alt="logo">
         <span class="brand">Indian Bank</span>
     </div>
 
     <div class="nav-right">
-        <a href="index.php?url=home/index"
+        <a href="/"
            class="nav-link <?php echo ($currentUrl === 'home/index') ? 'nav-link-active' : ''; ?>">
             Home
         </a>
@@ -42,7 +42,7 @@ $currentUrl = isset($_GET['url']) ? $_GET['url'] : '';
             $firstLetter = strtoupper(substr($username, 0, 1));
             ?>
 
-            <a href="index.php?url=dashboard/index"
+            <a href="/index"
                class="nav-link <?php echo (strpos($currentUrl, 'dashboard') === 0 || strpos($currentUrl, 'admin') === 0) ? 'nav-link-active' : ''; ?>">
                 Dashboard
             </a>
@@ -59,25 +59,25 @@ $currentUrl = isset($_GET['url']) ? $_GET['url'] : '';
                         <?php echo htmlspecialchars($username); ?>
                     </div>
 
-                    <a href="index.php?url=customer/details" class="dropdown-item">
+                    <a href="/customer" class="dropdown-item">
                         <img src="images/user-details.png" class="dropdown-icon">
                         Customer Details
                     </a>
 
-                    <a href="index.php?url=account/create" class="dropdown-item">
+                    <a href="/create" class="dropdown-item">
                         <img src="images/add-user.png" class="dropdown-icon" alt="Create account icon">
                         Create New Account
                     </a>
 
-                    <a href="index.php?url=auth/logout" class="dropdown-item">
+                    <a href="/logout" class="dropdown-item">
                         <img src="images/quit.png" class="dropdown-icon" alt="Logout icon">
                         Logout
                     </a>
                 </div>
             </div>
         <?php else: ?>
-            <a href="index.php?url=auth/login" class="nav-link">Login</a>
-            <a href="index.php?url=auth/register" class="nav-link nav-highlight">Register</a>
+            <a href="/login" class="nav-link">Login</a>
+            <a href="/register" class="nav-link nav-highlight">Register</a>
         <?php endif; ?>
     </div>
 </header>
@@ -91,33 +91,33 @@ $userRole = $_SESSION['user_role'] ?? ($_SESSION['role'] ?? null);
 <div class="tile-nav">
 
     <!-- Home -->
-    <a href="index.php?url=dashboard/index"
+    <a href="/index"
        class="tile-link <?php echo ($currentUrl === 'dashboard') ? 'active-tile' : ''; ?>">
        Dashboard
     </a>
 
     <!-- Deposit (ADMIN ONLY) -->
     <?php if ($userRole === 'admin'): ?>
-        <a href="index.php?url=deposit/index"
+        <a href="/deposit"
            class="tile-link <?php echo (strpos($currentUrl,'deposit') === 0) ? 'active-tile' : ''; ?>">
            Deposit
         </a>
     <?php endif; ?>
 
     <!-- Withdraw -->
-    <a href="index.php?url=withdraw/index"
+    <a href="/withdraw"
        class="tile-link <?php echo (strpos($currentUrl,'withdraw') === 0) ? 'active-tile' : ''; ?>">
        Withdraw
     </a>
 
     <!-- Transfer -->
-    <a href="index.php?url=transfer/index"
+    <a href="/transfer"
        class="tile-link <?php echo (strpos($currentUrl,'transfer') === 0) ? 'active-tile' : ''; ?>">
        Transfer
     </a>
 
     <!-- Transactions -->
-    <a href="index.php?url=transaction/index"
+    <a href="/transaction"
        class="tile-link <?php echo (strpos($currentUrl,'transaction') === 0) ? 'active-tile' : ''; ?>">
        Transactions
     </a>

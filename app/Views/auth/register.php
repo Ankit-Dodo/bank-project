@@ -72,7 +72,7 @@
     </form>
 
     <p class="auth-switch">
-        Already have an account? <a href="index.php?url=auth/login">Login</a>
+        Already have an account? <a href="/login">Login</a>
     </p>
 </div>
 
@@ -99,7 +99,7 @@
     // Check if email already exists (AJAX)
     async function checkEmailExists(email) {
         try {
-            const response = await fetch("index.php?url=auth/checkEmail", {
+            const response = await fetch("/checkEmail", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email })

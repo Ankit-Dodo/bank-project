@@ -1,4 +1,9 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Account;
+use App\Models\User;
 
 class WithdrawController extends Controller
 {
@@ -17,7 +22,7 @@ class WithdrawController extends Controller
         $userId = (int)$_SESSION['user_id'];
 
         /* load user */
-        $userModel = $this->model("User");
+        $userModel = new User();
         $user      = $userModel->findById($userId);
 
         if (!$user) {
@@ -25,7 +30,7 @@ class WithdrawController extends Controller
         }
 
         $role = strtolower($user['role']);
-        $accountModel = $this->model("Account");
+        $accountModel = new Account();
 
         /* For ADMIN → get list of customers */
         $usersList = ($role === "admin")

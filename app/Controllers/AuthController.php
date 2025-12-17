@@ -1,4 +1,8 @@
 <?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -10,7 +14,7 @@ class AuthController extends Controller
 
         // If already logged in then go to dashboard
         if (!empty($_SESSION['user_id'])) {
-            header("Location: index.php?url=dashboard/index");
+            header("dashboard/index");
             exit;
         }
 
@@ -29,8 +33,8 @@ class AuthController extends Controller
                 $message = "Please enter a valid email address.";
                 $messageType = "error";
             } else {
-                $userModel = $this->model("User");
-                $user      = $userModel->findByEmail($email);
+                $userModel = new User();
+                $user = $userModel->findByEmail($email);
 
                 if (!$user) {
                     $message = "Invalid email or password.";
@@ -54,7 +58,7 @@ class AuthController extends Controller
                             $_SESSION['email']     = $user['email'];
                             $_SESSION['username']  = $user['username'];
 
-                            header("Location: index.php?url=dashboard/index");
+                            header("Location: /");
                             exit;
                         }
                     }
@@ -97,22 +101,22 @@ class AuthController extends Controller
                 $message = "All fields are required.";
                 $messageType = "error";
 
-            // username rules
+                // username rules
             } elseif (!preg_match('/^[A-Za-z0-9_]{3,30}$/', $username)) {
                 $message = "Username must be 3-30 characters and contain only letters, numbers or underscore.";
                 $messageType = "error";
 
-            // email format & reasonable length
+                // email format & reasonable length
             } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 25) {
                 $message = "Invalid or too long email address.";
                 $messageType = "error";
 
-            // password match
+                // password match
             } elseif ($password !== $confirmPassword) {
                 $message = "Password and confirm password do not match.";
                 $messageType = "error";
 
-            // password complexity & length
+                // password complexity & length
             } else {
                 $hasUpper  = preg_match('/[A-Z]/', $password);
                 $hasLower  = preg_match('/[a-z]/', $password);
@@ -129,7 +133,7 @@ class AuthController extends Controller
                     $messageType = "error";
                 } else {
                     // uniqueness checks & creation
-                    $userModel = $this->model("User");
+                    $userModel = new User();
 
                     if ($userModel->emailExists($email)) {
                         $message = "This email is already registered.";
@@ -179,7 +183,7 @@ class AuthController extends Controller
         $exists = false;
 
         if ($email !== "") {
-            $userModel = $this->model("User");
+            $userModel = new User();
             $exists    = $userModel->emailExists($email);
         }
 
@@ -193,10 +197,10 @@ class AuthController extends Controller
             session_start();
         }
 
-       
+        $_SESSION = [];
         session_destroy();
 
-        header("Location: " . APP_URL . "/auth/login");
+        header("/login");
         exit;
     }
 }
