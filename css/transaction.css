@@ -89,7 +89,6 @@
     border: 1px solid #dcdde1;
     padding: 10px 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    width: 260px;
     display: none;
     z-index: 100;
 }
